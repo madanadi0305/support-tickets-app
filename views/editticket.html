@@ -482,6 +482,69 @@
         </div>
     </div>
 
+    <!-- Edit Ticket Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Ticket Details</h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            
+            <div id="modal-message-container"></div>
+            
+            <form id="edit-form" onsubmit="submitEditForm(event)">
+                <div class="form-group">
+                    <label class="form-label">Ticket ID</label>
+                    <div class="readonly-field" id="modal-ticket-id"></div>
+                    <p class="info-text">Ticket ID cannot be changed</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="modal-title">Title</label>
+                    <input 
+                        type="text" 
+                        id="modal-title" 
+                        name="title" 
+                        class="form-input" 
+                        required
+                        maxlength="200"
+                    >
+                    <p class="info-text">Maximum 200 characters</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="modal-status">Status</label>
+                    <select id="modal-status" name="status" class="form-select" required>
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Created By</label>
+                    <div class="readonly-field" id="modal-created-by"></div>
+                    <p class="info-text">Creator cannot be changed</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Created At</label>
+                    <div class="readonly-field" id="modal-created-at"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Last Updated</label>
+                    <div class="readonly-field" id="modal-updated-at"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="modal-submit-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let currentTicket = null;
         let ticketId = null;
@@ -649,8 +712,101 @@
 
         function openEditForm(event) {
             event.preventDefault();
-            window.location.href = `/editticketdetails?id=${ticketId}`;
+            if (!currentTicket) {
+                showError('Ticket data not loaded');
+                return;
+            }
+            
+            // Populate modal with current ticket data
+            document.getElementById('modal-ticket-id').textContent = `#${currentTicket.ticket_id}`;
+            document.getElementById('modal-title').value = currentTicket.title;
+            document.getElementById('modal-status').value = currentTicket.status;
+            document.getElementById('modal-created-by').textContent = currentTicket.created_by;
+            document.getElementById('modal-created-at').textContent = formatDate(currentTicket.created_at);
+            document.getElementById('modal-updated-at').textContent = formatDate(currentTicket.updated_at || currentTicket.created_at);
+            
+            // Open modal
+            document.getElementById('edit-modal').classList.add('active');
         }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+            document.getElementById('modal-message-container').innerHTML = '';
+        }
+
+        async function submitEditForm(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('modal-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const formData = {
+                title: document.getElementById('modal-title').value,
+                status: document.getElementById('modal-status').value
+            };
+
+            // Check if anything changed
+            if (formData.title === currentTicket.title && formData.status === currentTicket.status) {
+                showModalError('No changes detected');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update ticket');
+                }
+                
+                showModalSuccess('Ticket updated successfully!');
+                
+                // Close modal after short delay and reload ticket details
+                setTimeout(() => {
+                    closeEditModal();
+                    loadTicketDetails();
+                    loadTimeline();
+                }, 1500);
+            } catch (error) {
+                showModalError('Error updating ticket: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+            }
+        }
+
+        function showModalError(message) {
+            const container = document.getElementById('modal-message-container');
+            container.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        function showModalSuccess(message) {
+            const container = document.getElementById('modal-message-container');
+            container.innerHTML = `<div class="success">${escapeHtml(message)}</div>`;
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('edit-modal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+
+        // Close modal with Escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeEditModal();
+            }
+        });
 
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
