@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Messages</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .ticket-info {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+
+        .ticket-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ticket-info-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .ticket-info-value {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .status-open {
+            background-color: #fef3cd;
+            color: #856404;
+        }
+
+        .status-in_progress {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .messages-section {
+            margin-bottom: 30px;
+        }
+
+        .messages-header {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .message {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 3px solid #1e90ff;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .message-author {
+            font-weight: 600;
+            color: #1e90ff;
+        }
+
+        .message-date {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .message-text {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .add-message-section {
+            border-top: 2px solid #dee2e6;
+            padding-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #dc3545;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-primary {
+            background-color: #1e90ff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1873cc;
+        }
+
+        .btn-primary:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="btn-back">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>Ticket Messages</h1>
+        </div>
+
+        <div id="message-container"></div>
+
+        <!-- Ticket Info -->
+        <div id="ticket-info-container">
+            <div class="loading">Loading ticket details...</div>
+        </div>
+
+        <!-- Messages List -->
+        <div class="messages-section">
+            <h2 class="messages-header">Conversation</h2>
+            <div id="messages-container">
+                <div class="loading">Loading messages...</div>
+            </div>
+        </div>
+
+        <!-- Add Message Form -->
+        <div class="add-message-section">
+            <h2 class="messages-header">Add a Message</h2>
+            <form id="add-message-form" onsubmit="submitMessage(event)">
+                <div class="form-group">
+                    <label class="form-label required" for="message_text">Message</label>
+                    <textarea 
+                        id="message_text" 
+                        name="message_text" 
+                        class="form-input" 
+                        placeholder="Type your message here..."
+                        required
+                        maxlength="100"
+                    ></textarea>
+                    <p class="info-text">Maximum 100 characters</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="author">Your Email</label>
+                    <input 
+                        type="email" 
+                        id="author" 
+                        name="author" 
+                        class="form-input" 
+                        placeholder="your.email@example.com"
+                        required
+                        maxlength="50"
+                    >
+                </div>
+
+                <button type="submit" class="btn-primary" id="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let ticketId = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            ticketId = urlParams.get('id');
+            
+            if (!ticketId) {
+                showError('No ticket ID provided');
+                return;
+            }
+            
+            loadTicketInfo();
+            loadMessages();
+        });
+
+        async function loadTicketInfo() {
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load ticket');
+                }
+                
+                const ticket = await response.json();
+                displayTicketInfo(ticket);
+            } catch (error) {
+                showError('Error loading ticket: ' + error.message);
+            }
+        }
+
+        function displayTicketInfo(ticket) {
+            const container = document.getElementById('ticket-info-container');
+            container.innerHTML = `
+                <div class="ticket-info">
+                    <div class="ticket-info-item">
+                        <span class="ticket-info-label">Ticket ID</span>
+                        <span class="ticket-info-value">#${ticket.ticket_id}</span>
+                    </div>
+                    <div class="ticket-info-item">
+                        <span class="ticket-info-label">Title</span>
+                        <span class="ticket-info-value">${escapeHtml(ticket.title)}</span>
+                    </div>
+                    <div class="ticket-info-item">
+                        <span class="ticket-info-label">Status</span>
+                        <span class="ticket-info-value">
+                            <span class="status-badge status-${ticket.status}">${ticket.status.replace('_', ' ')}</span>
+                        </span>
+                    </div>
+                    <div class="ticket-info-item">
+                        <span class="ticket-info-label">Created By</span>
+                        <span class="ticket-info-value">${escapeHtml(ticket.created_by)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadMessages() {
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}/messages`);
+                if (!response.ok) {
+                    throw new Error('Failed to load messages');
+                }
+                
+                const messages = await response.json();
+                displayMessages(messages);
+            } catch (error) {
+                showError('Error loading messages: ' + error.message);
+            }
+        }
+
+        function displayMessages(messages) {
+            const container = document.getElementById('messages-container');
+            
+            if (!messages || messages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No messages yet</p>
+                        <p>Be the first to add a message to this ticket</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const messagesHtml = messages.map(message => `
+                <div class="message">
+                    <div class="message-header">
+                        <span class="message-author">${escapeHtml(message.author)}</span>
+                        <span class="message-date">${formatDate(message.created_at)}</span>
+                    </div>
+                    <div class="message-text">${escapeHtml(message.message_text)}</div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = messagesHtml;
+        }
+
+        async function submitMessage(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            const formData = {
+                message_text: document.getElementById('message_text').value,
+                author: document.getElementById('author').value
+            };
+
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+                
+                showSuccess('Message sent successfully!');
+                document.getElementById('add-message-form').reset();
+                await loadMessages(); // Reload messages
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            } catch (error) {
+                showError('Error sending message: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="success">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 3000);
+        }
+    </script>
+</body>
+</html>

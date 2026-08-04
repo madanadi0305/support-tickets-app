@@ -75,6 +75,14 @@ def edit_ticket_page():
 def edit_ticket_details_page():
     return send_from_directory('views', 'editticketdetails.html')
 
+@app.route('/add-ticket')
+def add_ticket_page():
+    return send_from_directory('views', 'add-ticket.html')
+
+@app.route('/tickets/<int:ticket_id>/messages')
+def view_messages_page(ticket_id):
+    return send_from_directory('views', 'messages.html')
+
 # API Endpoints
 
 # 1. GET all tickets
@@ -418,6 +426,5 @@ def health_check():
 
 if __name__ == '__main__':
     # Run the Flask app
-    # Databricks Apps sets DATABRICKS_APP_PORT, fallback to PORT or 8080
-    port = int(os.getenv('DATABRICKS_APP_PORT', os.getenv('PORT', 8080)))
+    port = int(os.getenv('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=True)
