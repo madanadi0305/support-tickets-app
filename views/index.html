@@ -316,6 +316,11 @@
             window.location.href = `/tickets/${ticketId}/messages`;
         }
 
+        function editTicket(ticketId) {
+            // Redirect to edit ticket details page (edit form)
+            window.location.href = `/editticketdetails?id=${ticketId}`;
+        }
+
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
