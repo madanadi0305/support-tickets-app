@@ -1,0 +1,11 @@
+# Databricks Apps configuration file
+
+# Command to run the Flask application
+command: ["python", "server.py"]
+
+# Environment variables (optional)
+env:
+  - name: FLASK_ENV
+    value: production
+  - name: PYTHONUNBUFFERED
+    value: "1"

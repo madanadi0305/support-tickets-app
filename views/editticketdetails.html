@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Ticket Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #dc3545;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+        }
+
+        .form-input:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #1e90ff;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background-color: #1873cc;
+        }
+
+        .btn-primary:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .readonly-field {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="#" class="btn-back" onclick="goBack(event)">← Back to Ticket</a>
+        
+        <h1>Edit Ticket Details</h1>
+
+        <div id="message-container"></div>
+
+        <div id="form-container">
+            <div class="loading">Loading ticket details...</div>
+        </div>
+    </div>
+
+    <script>
+        let ticketId = null;
+        let originalTicket = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            ticketId = urlParams.get('id');
+            
+            if (!ticketId) {
+                showError('No ticket ID provided');
+                return;
+            }
+            
+            loadTicket();
+        });
+
+        async function loadTicket() {
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load ticket');
+                }
+                
+                originalTicket = await response.json();
+                displayForm(originalTicket);
+            } catch (error) {
+                showError('Error loading ticket: ' + error.message);
+            }
+        }
+
+        function displayForm(ticket) {
+            const container = document.getElementById('form-container');
+            
+            container.innerHTML = `
+                <form id="edit-form" onsubmit="submitForm(event)">
+                    <div class="form-group">
+                        <label class="form-label">Ticket ID</label>
+                        <div class="readonly-field">#${ticket.ticket_id}</div>
+                        <p class="info-text">Ticket ID cannot be changed</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required" for="title">Title</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            class="form-input" 
+                            value="${escapeHtml(ticket.title)}" 
+                            required
+                            maxlength="200"
+                        >
+                        <p class="info-text">Maximum 200 characters</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required" for="status">Status</label>
+                        <select id="status" name="status" class="form-select" required>
+                            <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>Open</option>
+                            <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Created By</label>
+                        <div class="readonly-field">${escapeHtml(ticket.created_by)}</div>
+                        <p class="info-text">Creator cannot be changed</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Created At</label>
+                        <div class="readonly-field">${formatDate(ticket.created_at)}</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Last Updated</label>
+                        <div class="readonly-field">${formatDate(ticket.updated_at || ticket.created_at)}</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="goBack(event)">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Save Changes</button>
+                    </div>
+                </form>
+            `;
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const formData = {
+                title: document.getElementById('title').value,
+                status: document.getElementById('status').value
+            };
+
+            // Check if anything changed
+            if (formData.title === originalTicket.title && formData.status === originalTicket.status) {
+                showError('No changes detected');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update ticket');
+                }
+                
+                showSuccess('Ticket updated successfully! Redirecting...');
+                setTimeout(() => {
+                    window.location.href = `/editticket?id=${ticketId}`;
+                }, 1500);
+            } catch (error) {
+                showError('Error updating ticket: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+            }
+        }
+
+        function goBack(event) {
+            event.preventDefault();
+            window.location.href = `/editticket?id=${ticketId}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="success">${escapeHtml(message)}</div>`;
+        }
+    </script>
+</body>
+</html>
