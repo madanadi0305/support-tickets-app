@@ -141,15 +141,17 @@ def create_ticket():
     conn = get_db_connection()
     cur = conn.cursor()
     
+    now = datetime.now()
     cur.execute("""
-        INSERT INTO tickets (title, status, created_by, created_at)
-        VALUES (%s, %s, %s, %s)
-        RETURNING ticket_id, title, status, created_at, created_by
+        INSERT INTO tickets (title, status, created_by, created_at, updated_at)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING ticket_id, title, status, created_at, created_by, updated_at
     """, (
         data.get('title'),
         data.get('status', 'open'),
         data.get('created_by'),
-        datetime.now()
+        now,
+        now
     ))
     
     new_ticket = cur.fetchone()
@@ -183,15 +185,16 @@ def update_ticket(ticket_id):
         conn.close()
         return jsonify({'error': 'Ticket not found'}), 404
     
-    # Update the ticket
+    # Update the ticket with updated_at timestamp
     cur.execute("""
         UPDATE tickets
-        SET title = %s, status = %s
+        SET title = %s, status = %s, updated_at = %s
         WHERE ticket_id = %s
-        RETURNING ticket_id, title, status, created_at, created_by
+        RETURNING ticket_id, title, status, created_at, created_by, updated_at
     """, (
         data.get('title'),
         data.get('status'),
+        datetime.now(),
         ticket_id
     ))
     
@@ -262,13 +265,13 @@ def update_ticket_status(ticket_id):
         conn.close()
         return jsonify({'error': 'Ticket not found'}), 404
     
-    # Update status
+    # Update status with updated_at timestamp
     cur.execute("""
         UPDATE tickets
-        SET status = %s
+        SET status = %s, updated_at = %s
         WHERE ticket_id = %s
-        RETURNING ticket_id, title, status, created_at, created_by
-    """, (data.get('status'), ticket_id))
+        RETURNING ticket_id, title, status, created_at, created_by, updated_at
+    """, (data.get('status'), datetime.now(), ticket_id))
     
     updated_ticket = cur.fetchone()
     
