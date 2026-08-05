@@ -222,29 +222,94 @@
             margin-bottom: 16px;
         }
 
-        .add-message-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            padding: 32px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        /* Modal Styles */
+        .modal {
             display: none;
-            margin-top: 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(102, 126, 234, 0.15);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-out;
         }
 
-        .add-message-section.visible {
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
             display: block;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            margin: 40px auto;
+            padding: 0;
+            max-width: 700px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
             animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-30px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h2 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 24px;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 300;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 32px;
         }
 
         .form-group {
@@ -286,9 +351,15 @@
             resize: vertical;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .btn {
             padding: 14px 32px;
             border: none;
             border-radius: 8px;
@@ -296,6 +367,12 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
@@ -313,6 +390,16 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
         }
 
         .loading {
@@ -372,8 +459,17 @@
                 gap: 20px;
             }
 
-            .add-message-section {
+            .modal-content {
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+
+            .modal-body {
                 padding: 24px 20px;
+            }
+
+            .modal-header {
+                padding: 20px;
             }
         }
     </style>
@@ -385,7 +481,7 @@
                 <a href="/" class="btn-back">← Back to Dashboard</a>
                 <h1>Ticket Messages</h1>
             </div>
-            <button class="btn-add-message" onclick="scrollToAddMessage()">+ Add Message</button>
+            <button class="btn-add-message" onclick="openAddMessageModal()">+ Add Message</button>
         </div>
 
         <div class="content-wrapper">
@@ -403,10 +499,20 @@
                     <div class="loading">Loading messages...</div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Add Message Form -->
-            <div class="add-message-section" id="add-message-section">
-                <h2 class="messages-header">Add a Message</h2>
+    <!-- Add Message Modal -->
+    <div id="add-message-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add a Message</h2>
+                <button class="modal-close" onclick="closeAddMessageModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="modal-message-container"></div>
+                
                 <form id="add-message-form" onsubmit="submitMessage(event)">
                     <div class="form-group">
                         <label class="form-label required" for="message_text">Message</label>
@@ -434,7 +540,10 @@
                         >
                     </div>
 
-                    <button type="submit" class="btn-primary" id="submit-btn">Send Message</button>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddMessageModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Send Message</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -564,6 +673,7 @@
                 showSuccess('Message sent successfully!');
                 document.getElementById('add-message-form').reset();
                 await loadMessages(); // Reload messages
+                closeAddMessageModal(); // Close the modal
                 
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Send Message';
@@ -599,16 +709,27 @@
             setTimeout(() => container.innerHTML = '', 3000);
         }
 
-        function scrollToAddMessage() {
-            const section = document.getElementById('add-message-section');
-            section.classList.add('visible');
+        function openAddMessageModal() {
+            const modal = document.getElementById('add-message-modal');
+            modal.classList.add('active');
             setTimeout(() => {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                setTimeout(() => {
-                    document.getElementById('message_text').focus();
-                }, 500);
+                document.getElementById('message_text').focus();
             }, 100);
         }
+
+        function closeAddMessageModal() {
+            const modal = document.getElementById('add-message-modal');
+            modal.classList.remove('active');
+            document.getElementById('add-message-form').reset();
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('add-message-modal');
+            if (event.target === modal) {
+                closeAddMessageModal();
+            }
+        });
     </script>
 </body>
 </html>
