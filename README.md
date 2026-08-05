@@ -49,33 +49,58 @@ PORT=8080
 
 ### 2. Set Up Database Tables
 
-Your Lakebase database should have these tables:
-
-**tickets table** (already exists):
-```sql
--- ticket_id (bigint, identity)
--- title (varchar)
--- status (varchar)
--- created_at (timestamp with time zone)
--- created_by (varchar)
+**Option A: Complete Fresh Setup**
+Run the complete database setup script in your Lakebase database:
+```bash
+# This creates all tables with the correct schema
+psql -h <LAKEBASE_HOST> -U <LAKEBASE_USER> -d databricks_postgres -f setup_database.sql
 ```
 
-**ticket_messages table** (already exists):
+**Option B: Add Missing Column to Existing Table**
+If your tables already exist but are missing the `updated_at` column:
+```bash
+# This adds the updated_at column to the tickets table
+psql -h <LAKEBASE_HOST> -U <LAKEBASE_USER> -d databricks_postgres -f add_updated_at_column.sql
+```
+
+**Required Table Schema:**
+
+**tickets table**:
 ```sql
--- message_id (bigint, identity)
--- ticket_id (bigint)
--- message_text (varchar(100))
--- author (varchar(50))
--- created_at (timestamp with time zone)
+CREATE TABLE tickets (
+    ticket_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'open',
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_by VARCHAR(100) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL  -- REQUIRED for edit functionality!
+);
+```
+
+**ticket_messages table**:
+```sql
+CREATE TABLE ticket_messages (
+    message_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ticket_id BIGINT NOT NULL,
+    message_text VARCHAR(100) NOT NULL,
+    author VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
 ```
 
 **ticket_history table** (optional, for timeline feature):
-```bash
-# Run the SQL script to create the history table:
-python -c "import psycopg2; conn = psycopg2.connect(...); cur = conn.cursor(); cur.execute(open('setup_history_table.sql').read()); conn.commit()"
+```sql
+CREATE TABLE ticket_history (
+    history_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ticket_id BIGINT NOT NULL,
+    change_type VARCHAR(50) NOT NULL,
+    field_name VARCHAR(50),
+    old_value TEXT,
+    new_value TEXT,
+    changed_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    changed_by VARCHAR(100)
+);
 ```
-
-Or run the SQL directly in your Lakebase database.
 
 ### 3. Install Dependencies
 
