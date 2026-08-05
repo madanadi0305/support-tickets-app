@@ -553,8 +553,12 @@
         let ticketId = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            ticketId = urlParams.get('id');
+            // Extract ticket ID from URL path: /tickets/<id>/messages
+            const pathParts = window.location.pathname.split('/');
+            const ticketIndex = pathParts.indexOf('tickets');
+            if (ticketIndex !== -1 && pathParts[ticketIndex + 1]) {
+                ticketId = pathParts[ticketIndex + 1];
+            }
             
             if (!ticketId) {
                 showError('No ticket ID provided');
