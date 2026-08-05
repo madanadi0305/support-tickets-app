@@ -47,15 +47,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 24px 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-back {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
             padding: 8px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
             border-radius: 6px;
             font-size: 14px;
             cursor: pointer;
@@ -65,15 +65,15 @@
         }
 
         .btn-back:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.3) !important;
             transform: translateX(-2px);
         }
 
         h1 {
-            color: #ffffff;
+            color: #ffffff !important;
             font-size: 24px;
             font-weight: 700;
-            margin: 0;
+            margin: 0 !important;
             letter-spacing: -0.5px;
         }
 
@@ -136,44 +136,51 @@
         .form-actions {
             display: flex;
             gap: 12px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e2e8f0;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 14px 32px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 15px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            flex: 1;
         }
 
         .btn-primary {
-            background-color: #1e90ff;
-            color: white;
-            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
         }
 
         .btn-primary:hover {
-            background-color: #1873cc;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) !important;
         }
 
         .btn-primary:disabled {
-            background-color: #6c757d;
+            background: #94a3b8 !important;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            flex: 1;
+            background-color: #e2e8f0 !important;
+            color: #475569 !important;
         }
 
         .btn-secondary:hover {
-            background-color: #5a6268;
+            background-color: #cbd5e1 !important;
         }
 
         .error {
@@ -235,13 +242,15 @@
 </head>
 <body>
     <div class="container">
-        <a href="/" class="btn-back">← Back to Dashboard</a>
-        
-        <h1>Add New Ticket</h1>
+        <div class="page-header">
+            <h1>Add New Ticket</h1>
+            <a href="/" class="btn-back">← Back to Dashboard</a>
+        </div>
 
-        <div id="message-container"></div>
+        <div class="form-container">
+            <div id="message-container"></div>
 
-        <form id="add-ticket-form" onsubmit="submitForm(event)">
+            <form id="add-ticket-form" onsubmit="submitForm(event)">
             <div class="form-group">
                 <label class="form-label required" for="title">Ticket Title</label>
                 <input 
