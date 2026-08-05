@@ -227,6 +227,24 @@
             padding: 32px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: none;
+            margin-top: 24px;
+        }
+
+        .add-message-section.visible {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .form-group {
@@ -579,6 +597,17 @@
             const container = document.getElementById('message-container');
             container.innerHTML = `<div class="success">${escapeHtml(message)}</div>`;
             setTimeout(() => container.innerHTML = '', 3000);
+        }
+
+        function scrollToAddMessage() {
+            const section = document.getElementById('add-message-section');
+            section.classList.add('visible');
+            setTimeout(() => {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                setTimeout(() => {
+                    document.getElementById('message_text').focus();
+                }, 500);
+            }, 100);
         }
     </script>
 </body>
