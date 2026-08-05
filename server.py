@@ -141,18 +141,38 @@ def create_ticket():
     conn = get_db_connection()
     cur = conn.cursor()
     
-    now = datetime.now()
+    # Check if updated_at column exists
     cur.execute("""
-        INSERT INTO tickets (title, status, created_by, created_at, updated_at)
-        VALUES (%s, %s, %s, %s, %s)
-        RETURNING ticket_id, title, status, created_at, created_by, updated_at
-    """, (
-        data.get('title'),
-        data.get('status', 'open'),
-        data.get('created_by'),
-        now,
-        now
-    ))
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'tickets' AND column_name = 'updated_at'
+    """)
+    has_updated_at = cur.fetchone() is not None
+    
+    now = datetime.now()
+    if has_updated_at:
+        cur.execute("""
+            INSERT INTO tickets (title, status, created_by, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING ticket_id, title, status, created_at, created_by, updated_at
+        """, (
+            data.get('title'),
+            data.get('status', 'open'),
+            data.get('created_by'),
+            now,
+            now
+        ))
+    else:
+        cur.execute("""
+            INSERT INTO tickets (title, status, created_by, created_at)
+            VALUES (%s, %s, %s, %s)
+            RETURNING ticket_id, title, status, created_at, created_by
+        """, (
+            data.get('title'),
+            data.get('status', 'open'),
+            data.get('created_by'),
+            now
+        ))
     
     new_ticket = cur.fetchone()
     conn.commit()
@@ -185,18 +205,38 @@ def update_ticket(ticket_id):
         conn.close()
         return jsonify({'error': 'Ticket not found'}), 404
     
-    # Update the ticket with updated_at timestamp
+    # Check if updated_at column exists
     cur.execute("""
-        UPDATE tickets
-        SET title = %s, status = %s, updated_at = %s
-        WHERE ticket_id = %s
-        RETURNING ticket_id, title, status, created_at, created_by, updated_at
-    """, (
-        data.get('title'),
-        data.get('status'),
-        datetime.now(),
-        ticket_id
-    ))
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'tickets' AND column_name = 'updated_at'
+    """)
+    has_updated_at = cur.fetchone() is not None
+    
+    # Update the ticket (with or without updated_at)
+    if has_updated_at:
+        cur.execute("""
+            UPDATE tickets
+            SET title = %s, status = %s, updated_at = %s
+            WHERE ticket_id = %s
+            RETURNING ticket_id, title, status, created_at, created_by, updated_at
+        """, (
+            data.get('title'),
+            data.get('status'),
+            datetime.now(),
+            ticket_id
+        ))
+    else:
+        cur.execute("""
+            UPDATE tickets
+            SET title = %s, status = %s
+            WHERE ticket_id = %s
+            RETURNING ticket_id, title, status, created_at, created_by
+        """, (
+            data.get('title'),
+            data.get('status'),
+            ticket_id
+        ))
     
     updated_ticket = cur.fetchone()
     
@@ -265,13 +305,29 @@ def update_ticket_status(ticket_id):
         conn.close()
         return jsonify({'error': 'Ticket not found'}), 404
     
-    # Update status with updated_at timestamp
+    # Check if updated_at column exists
     cur.execute("""
-        UPDATE tickets
-        SET status = %s, updated_at = %s
-        WHERE ticket_id = %s
-        RETURNING ticket_id, title, status, created_at, created_by, updated_at
-    """, (data.get('status'), datetime.now(), ticket_id))
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'tickets' AND column_name = 'updated_at'
+    """)
+    has_updated_at = cur.fetchone() is not None
+    
+    # Update status (with or without updated_at)
+    if has_updated_at:
+        cur.execute("""
+            UPDATE tickets
+            SET status = %s, updated_at = %s
+            WHERE ticket_id = %s
+            RETURNING ticket_id, title, status, created_at, created_by, updated_at
+        """, (data.get('status'), datetime.now(), ticket_id))
+    else:
+        cur.execute("""
+            UPDATE tickets
+            SET status = %s
+            WHERE ticket_id = %s
+            RETURNING ticket_id, title, status, created_at, created_by
+        """, (data.get('status'), ticket_id))
     
     updated_ticket = cur.fetchone()
     
