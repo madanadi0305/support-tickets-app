@@ -13,150 +13,209 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
         }
 
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            padding: 32px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         h1 {
-            color: #333;
-            font-size: 28px;
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
             margin: 0;
+            letter-spacing: -0.5px;
         }
 
         .btn-add-ticket {
-            background-color: #1e90ff;
-            color: white;
-            padding: 12px 24px;
+            background-color: #ffffff;
+            color: #667eea;
+            padding: 12px 28px;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .btn-add-ticket:hover {
-            background-color: #1873cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            background-color: #f8f9ff;
+        }
+
+        .btn-add-ticket:active {
+            transform: translateY(0);
+        }
+
+        #tickets-container {
+            padding: 0;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         thead {
-            background-color: #f8f9fa;
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
         }
 
         th {
-            padding: 12px;
+            padding: 18px 24px;
             text-align: left;
             font-weight: 600;
-            color: #555;
-            border-bottom: 2px solid #dee2e6;
+            color: #2d3748;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 10;
+        }
+
+        th:first-child {
+            padding-left: 40px;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #dee2e6;
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #4a5568;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        td:first-child {
+            padding-left: 40px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
         }
 
         tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: #f8fafc;
+            transform: scale(1.001);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: capitalize;
+            letter-spacing: 0.3px;
         }
 
         .status-open {
-            background-color: #fef3cd;
-            color: #856404;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
         }
 
         .status-in_progress {
-            background-color: #d1ecf1;
-            color: #0c5460;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
         }
 
         .status-resolved {
-            background-color: #d4edda;
-            color: #155724;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
         }
 
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-buttons button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-delete {
-            background-color: #dc3545;
-            color: white;
-            padding: 6px 14px;
-            border: none;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            background-color: #fee2e2;
+            color: #dc2626;
         }
 
         .btn-delete:hover {
-            background-color: #c82333;
+            background-color: #dc2626;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
         }
 
         .btn-view-messages {
-            background-color: #28a745;
-            color: white;
-            padding: 6px 14px;
-            border: none;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            background-color: #d1fae5;
+            color: #059669;
         }
 
         .btn-view-messages:hover {
-            background-color: #218838;
+            background-color: #059669;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
         }
 
         .btn-edit {
-            background-color: #1e90ff;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            background-color: #dbeafe;
+            color: #2563eb;
+            padding: 8px;
+            width: 32px;
+            height: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
 
         .btn-edit:hover {
-            background-color: #1873cc;
+            background-color: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         .btn-edit svg {
@@ -166,27 +225,67 @@
 
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 80px 20px;
+            color: #64748b;
+            font-size: 15px;
         }
 
         .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin: 24px 40px;
+            border-left: 4px solid #dc2626;
+            font-weight: 500;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #666;
+            padding: 100px 40px;
+            color: #64748b;
         }
 
         .empty-state p {
             font-size: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .empty-state p:first-child {
+            font-size: 20px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 24px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            th, td {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            th:first-child, td:first-child {
+                padding-left: 20px;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
