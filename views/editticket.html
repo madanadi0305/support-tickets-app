@@ -640,7 +640,8 @@
 
         async function loadTicketDetails() {
             try {
-                const response = await fetch(`/api/tickets/${ticketId}`);
+                // Add cache-busting timestamp to force fresh data
+                const response = await fetch(`/api/tickets/${ticketId}?_t=${Date.now()}`);
                 if (!response.ok) {
                     throw new Error('Failed to load ticket details');
                 }
@@ -730,7 +731,8 @@
 
         async function loadTimeline() {
             try {
-                const response = await fetch(`/api/tickets/${ticketId}/history`);
+                // Add cache-busting timestamp to force fresh data
+                const response = await fetch(`/api/tickets/${ticketId}/history?_t=${Date.now()}`);
                 if (!response.ok) {
                     throw new Error('Failed to load timeline');
                 }
@@ -851,13 +853,20 @@
                     throw new Error(errorData.error || 'Failed to update ticket');
                 }
                 
+                const updatedTicket = await response.json();
+                console.log('Updated ticket received:', updatedTicket);
+                
                 showModalSuccess('Ticket updated successfully!');
                 
-                // Close modal after short delay and reload ticket details
-                setTimeout(() => {
+                // Immediately update currentTicket with fresh data
+                currentTicket = updatedTicket;
+                
+                // Close modal and reload ticket details
+                setTimeout(async () => {
                     closeEditModal();
-                    loadTicketDetails();
-                    loadTimeline();
+                    await loadTicketDetails();
+                    await loadTimeline();
+                    console.log('Page refreshed with new data');
                 }, 1500);
             } catch (error) {
                 console.error('Error in submitEditForm:', error);

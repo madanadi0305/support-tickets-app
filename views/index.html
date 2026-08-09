@@ -314,10 +314,25 @@
     <script>
         // Load tickets on page load
         window.addEventListener('DOMContentLoaded', loadTickets);
+        
+        // Auto-refresh tickets when user returns to this page
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('Page became visible, refreshing tickets...');
+                loadTickets();
+            }
+        });
+        
+        // Also refresh when window regains focus
+        window.addEventListener('focus', () => {
+            console.log('Window focused, refreshing tickets...');
+            loadTickets();
+        });
 
         async function loadTickets() {
             try {
-                const response = await fetch('/api/tickets');
+                // Add cache-busting timestamp to force fresh data
+                const response = await fetch(`/api/tickets?_t=${Date.now()}`);
                 if (!response.ok) {
                     throw new Error('Failed to load tickets');
                 }
