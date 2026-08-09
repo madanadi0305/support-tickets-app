@@ -13,44 +13,72 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f3f4f6;
-            padding: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 32px;
+            max-width: 700px;
+            width: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-back {
-            background-color: #e5e7eb;
-            color: #374151;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
             padding: 8px 16px;
-            border: 1px solid #d1d5db;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 6px;
             font-size: 14px;
-            font-weight: 500;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin-bottom: 24px;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .btn-back:hover {
-            background-color: #d1d5db;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-2px);
         }
 
         h1 {
-            color: #111827;
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 32px;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .form-container {
+            padding: 32px;
         }
 
         .form-group {
@@ -81,8 +109,9 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background-color: #ffffff;
         }
 
         .form-input:disabled {
@@ -109,8 +138,9 @@
 
         .form-select:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background-color: #ffffff;
         }
 
         .form-actions {
@@ -132,13 +162,19 @@
         }
 
         .btn-primary {
-            background-color: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             flex: 1;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .btn-primary:hover {
-            background-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-primary:disabled {
@@ -195,14 +231,17 @@
 </head>
 <body>
     <div class="container">
-        <a href="#" class="btn-back" onclick="goBack(event)">← Back to Ticket</a>
+        <div class="page-header">
+            <h1>Edit Ticket Details</h1>
+            <a href="#" class="btn-back" onclick="goBack(event)">← Back to Ticket</a>
+        </div>
         
-        <h1>Edit Ticket Details</h1>
+        <div class="form-container">
+            <div id="message-container"></div>
 
-        <div id="message-container"></div>
-
-        <div id="form-container">
-            <div class="loading">Loading ticket details...</div>
+            <div id="form-container">
+                <div class="loading">Loading ticket details...</div>
+            </div>
         </div>
     </div>
 
