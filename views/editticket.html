@@ -13,9 +13,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
+            background-color: #f5f5f5;
+            padding: 20px;
         }
 
         .container {
@@ -79,12 +78,11 @@
         .ticket-details {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
+            gap: 20px;
             margin-bottom: 40px;
-            padding: 30px;
+            padding: 20px;
             background-color: #f8f9fa;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
+            border-radius: 8px;
         }
 
         .field-group {
@@ -117,11 +115,11 @@
         /* Status Selector */
         .status-selector {
             display: flex;
-            gap: 12px;
-            padding: 12px;
-            background-color: #fafbfc;
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
+            gap: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
         }
 
         .status-option {
@@ -178,11 +176,7 @@
 
         /* Timeline Section */
         .timeline-section {
-            margin-top: 50px;
-            padding: 30px;
-            background-color: #fafbfc;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
+            margin-top: 40px;
         }
 
         .timeline-header {
@@ -193,9 +187,8 @@
         }
 
         .timeline-header h2 {
-            color: #2d3748;
-            font-size: 24px;
-            font-weight: 700;
+            color: #333;
+            font-size: 22px;
         }
 
         .timeline {
@@ -508,6 +501,7 @@
         
         <div class="header">
             <h1>Ticket Details</h1>
+            <a href="#" class="btn-edit" id="edit-button" onclick="openEditForm(event)">Edit Ticket Details</a>
         </div>
 
         <div id="message-container"></div>
@@ -758,7 +752,103 @@
             }
         }
 
+        function openEditForm(event) {
+            event.preventDefault();
+            if (!currentTicket) {
+                showError('Ticket data not loaded');
+                return;
+            }
+            
+            // Populate modal with current ticket data
+            document.getElementById('modal-ticket-id').textContent = `#${currentTicket.ticket_id}`;
+            document.getElementById('modal-title').value = currentTicket.title;
+            document.getElementById('modal-status').value = currentTicket.status;
+            document.getElementById('modal-created-by').textContent = currentTicket.created_by;
+            document.getElementById('modal-created-at').textContent = formatDate(currentTicket.created_at);
+            document.getElementById('modal-updated-at').textContent = formatDate(currentTicket.updated_at || currentTicket.created_at);
+            
+            // Open modal
+            document.getElementById('edit-modal').classList.add('active');
+        }
 
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+            document.getElementById('modal-message-container').innerHTML = '';
+        }
+
+        async function submitEditForm(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('modal-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const formData = {
+                title: document.getElementById('modal-title').value,
+                status: document.getElementById('modal-status').value
+            };
+
+            // Check if anything changed
+            if (formData.title === currentTicket.title && formData.status === currentTicket.status) {
+                showModalError('No changes detected');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update ticket');
+                }
+                
+                showModalSuccess('Ticket updated successfully!');
+                
+                // Close modal after short delay and reload ticket details
+                setTimeout(() => {
+                    closeEditModal();
+                    loadTicketDetails();
+                    loadTimeline();
+                }, 1500);
+            } catch (error) {
+                showModalError('Error updating ticket: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+            }
+        }
+
+        function showModalError(message) {
+            const container = document.getElementById('modal-message-container');
+            container.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        function showModalSuccess(message) {
+            const container = document.getElementById('modal-message-container');
+            container.innerHTML = `<div class="success">${escapeHtml(message)}</div>`;
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('edit-modal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+
+        // Close modal with Escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeEditModal();
+            }
+        });
 
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
