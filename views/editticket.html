@@ -812,6 +812,7 @@
         async function submitEditForm(event) {
             event.preventDefault();
             
+            console.log('Submit form called');
             const submitBtn = document.getElementById('modal-submit-btn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Saving...';
@@ -821,14 +822,19 @@
                 status: document.getElementById('modal-status').value
             };
 
+            console.log('Form data:', formData);
+            console.log('Current ticket:', currentTicket);
+
             // Check if anything changed
             if (formData.title === currentTicket.title && formData.status === currentTicket.status) {
+                console.warn('No changes detected');
                 showModalError('No changes detected');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Save Changes';
                 return;
             }
 
+            console.log('Changes detected, sending PUT request...');
             try {
                 const response = await fetch(`/api/tickets/${ticketId}`, {
                     method: 'PUT',
@@ -838,8 +844,11 @@
                     body: JSON.stringify(formData)
                 });
                 
+                console.log('Response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to update ticket');
+                    const errorData = await response.json();
+                    console.error('Server error:', errorData);
+                    throw new Error(errorData.error || 'Failed to update ticket');
                 }
                 
                 showModalSuccess('Ticket updated successfully!');
@@ -851,6 +860,7 @@
                     loadTimeline();
                 }, 1500);
             } catch (error) {
+                console.error('Error in submitEditForm:', error);
                 showModalError('Error updating ticket: ' + error.message);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Save Changes';
