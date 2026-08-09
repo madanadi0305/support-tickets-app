@@ -3,9 +3,11 @@
 # Command to run the Flask application
 command: ["python", "server.py"]
 
-# Environment variables (optional)
+# Environment variables
 env:
   - name: FLASK_ENV
     value: production
   - name: PYTHONUNBUFFERED
     value: "1"
+  - name: DATABASE_URL
+    value: "postgresql://ticket-support-app-superuser:npg_jxlDVuo1C6Ns@ep-wispy-lab-d85k05xc.database.us-east-2.cloud.databricks.com/databricks_postgres?sslmode=require"
